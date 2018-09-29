@@ -199,7 +199,7 @@ Payment Info
 
 $('#payment option[value="credit card"]').attr('selected', true); // Credit card option is selected by default
 
-$('#payment option[value="select_method"]').hide(); // Select from method is hide
+$('#payment option[value="select_method"]').attr('disabled', true); // The first option is disabled because it is not a payment method
 
 // Selecting the div with the ID credit-card
 const creditCard = $('#credit-card');
@@ -305,7 +305,7 @@ function IsEmail(email) {
 errorMessage($('#name'), 'Must be at least 3 characters', 'nameError')
 
 // The event listener below shows or hides the error message based on the length of character in the text input field
-$('#name').blur(function(){
+$('#name').keyup(function(){
   const $text = $('#name').val();
   if ($text.length < 3 || $text === '') {
     showError('nameError');
@@ -320,7 +320,7 @@ $('#name').blur(function(){
 errorMessage($('#mail'), 'Invalid Email Address', 'mailError')
 
 // The event listener below shows or hides the error message based on the length of character in the text input field
-$('#mail').blur(function(){
+$('#mail').keyup(function(){
   const $text = $('#mail').val();
   if ($text === '' || IsEmail($text) === false) {
     showError('mailError');
@@ -399,15 +399,15 @@ properly.
 
 $('#payment').on('change', function(){
   if ($('#payment option:selected').attr('value') === 'credit card') {
-    $('#cc-num').blur(function(){
+    $('#cc-num').keyup(function(){
       ccNum();
     });
   
-    $('#zip').blur(function(){
+    $('#zip').keyup(function(){
       zip();
     });
   
-    $('#cvv').blur(function(){
+    $('#cvv').keyup(function(){
       cvv();
     });
   } else {
@@ -415,8 +415,70 @@ $('#payment').on('change', function(){
   }
 });
 
+errorMessage($('.activities input[name="all"]'), 'At least one activity should be checked', 'activityError')
+
 /*======= Validation When Submitting =======*/
 
 $('form').on('submit',function(e){
   
+  // The Name Field
+  if ($('#name').val().length < 3 || $('#name').val() === '') {
+    showError('nameError');
+    errorBorder('name');
+    e.preventDefault();
+  } else {
+    hideError('nameError');
+    errorFix('name');
+  }
+
+  // The Email Field
+  if ($('#mail').val() === '' || IsEmail($('#mail').val()) === false) {
+    showError('mailError');
+    errorBorder('mail');
+    e.preventDefault();
+  } else {
+    hideError('mailError');
+    errorFix('mail');
+  }
+
+  // The Register Activity
+  if ($('input[type="checkbox"]:checked').length < 1) {
+    showError('activityError');
+    e.preventDefault();
+  } else {
+    hideError('activityError');
+  }
+
+  // The Credit Card Info
+  if ($('#payment option:selected').attr('value') === 'credit card') {
+    
+    if ($('#cc-num').val().length < 13 || $('#cc-num').val().length > 16 || isNaN($('#cc-num').val())) {
+      showError('ccError');
+      errorBorder('cc-num');
+      e.preventDefault();
+    } else {
+      hideError('ccError');
+      errorFix('cc-num');
+    }
+
+    if ($('#zip').val().length !== 5 || isNaN($('#zip').val())) {
+      showError('ccError');
+      errorBorder('zip');
+      e.preventDefault();
+    } else {
+      hideError('ccError');
+      errorFix('zip');
+    }
+    
+    if ($('#cvv').val().length !== 3 || isNaN($('#cvv').val())) {
+      showError('ccError');
+      errorBorder('cvv');
+      e.preventDefault();
+    } else {
+      hideError('ccError');
+      errorFix('cvv');
+    }
+
+  }
+
 });
