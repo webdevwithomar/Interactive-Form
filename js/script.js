@@ -216,11 +216,18 @@ $('#credit-card').next().next().attr('id', 'bitcoin');
 // Selecting the div with the id bitcoin and storing it to a variable
 const bitCoin = $('#bitcoin');
 
+// bitcoin and paypal div are hidden by default
+
+paypal.hide();
+bitCoin.hide();
+
 // A function that takes the payment method divs as arguments and show or hide them
 function paymentMethods (paymentShow, paymentHide, paymentHide1) {
   $(paymentShow).show();
   $(paymentHide).hide();
   $(paymentHide1).hide();
+  $(paymentHide).removeAttr('selected');
+  $(paymentHide1).removeAttr('selected');
 }
 
 /*
@@ -255,17 +262,161 @@ $('#payment').on('change', function () {
 /*****************************
 Form Validation
 ******************************/
-// Below is a function for errorMessages
-function errorMessage(element, text) {
+// 5 Functions below are to generate and hide errorMessages and generate the border colors if error occurs
+
+function errorMessage(element, text, errorName) {
   const message = $('<p>'+text+'</p>');
   $('form').append(message);
   $(message).css('color', 'firebrick');
+  $(message).attr('id', errorName);
   $(message).insertBefore(element);
+  $('#'+errorName).hide();
 }
 
-$('form').on('submit',function(e){
-  if ($('#name').val() === '') {
-    e.preventDefault();
-    errorMessage($('#name'), 'Name field cannot be blank')
+function showError(id) {
+  $('#'+id).show();
+}
+
+function hideError(id) {
+  $('#'+id).hide();
+}
+
+function errorBorder (boxId) {
+  $('#' + boxId).css('border','2px solid firebrick');
+}
+
+function errorFix (boxId) {
+  $('#' + boxId).css('border','2px solid #c1deeb');
+}
+
+// Regrex Email validation function
+function IsEmail(email) {
+  var regex = /^([a-zA-Z0-9_\.\-\+])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+  if (!regex.test(email)) {
+    return false;
+  } else {
+    return true;
   }
+}
+
+/*======= Live Validation =======*/
+
+// Calling a function to generate an error message for name
+errorMessage($('#name'), 'Must be at least 3 characters', 'nameError')
+
+// The event listener below shows or hides the error message based on the length of character in the text input field
+$('#name').blur(function(){
+  const $text = $('#name').val();
+  if ($text.length < 3 || $text === '') {
+    showError('nameError');
+    errorBorder('name');
+  } else {
+    hideError('nameError');
+    errorFix('name');
+  }
+});
+
+// Calling a function to generate an error message for email
+errorMessage($('#mail'), 'Invalid Email Address', 'mailError')
+
+// The event listener below shows or hides the error message based on the length of character in the text input field
+$('#mail').blur(function(){
+  const $text = $('#mail').val();
+  if ($text === '' || IsEmail($text) === false) {
+    showError('mailError');
+    errorBorder('mail');
+  } else {
+    hideError('mailError');
+    errorFix('mail');
+  }
+});
+
+// Calling a function to generate an error message for credit-card
+errorMessage($('#credit-card'), 'Invalid Credit Card Information', 'ccError')
+
+// The 3 Functions below checks credit card info when calling
+
+function ccNum () {
+  if ($('#cc-num').val().length < 13 || $('#cc-num').val().length > 16 || isNaN($('#cc-num').val())) {
+    showError('ccError');
+    errorBorder('cc-num');
+  } else {
+    hideError('ccError');
+    errorFix('cc-num');
+  }
+}
+
+function zip () {
+  if ($('#zip').val().length !== 5 || isNaN($('#zip').val())) {
+    showError('ccError');
+    errorBorder('zip');
+  } else {
+    hideError('ccError');
+    errorFix('zip');
+  }
+}
+
+function cvv () {
+  if ($('#cvv').val().length !== 3 || isNaN($('#cvv').val())) {
+    showError('ccError');
+    errorBorder('cvv');
+  } else {
+    hideError('ccError');
+    errorFix('cvv');
+  }
+}
+
+// Since the credit card method is selected by default, the conditional statement below checks to see if the user has provided the credit card info correctly.
+
+if ($('#payment option:selected').attr('value') === 'credit card') {
+  
+  $('#cc-num').blur(function(){
+    ccNum();
+  });
+
+  $('#zip').blur(function(){
+    zip();
+  });
+
+  $('#cvv').blur(function(){
+    cvv();
+  });
+} else {
+  hideError('ccError');
+}
+
+/*
+- The Event Listener below fires whenever the status
+of the payment method select element is changed.
+
+- The conditional statement checks to see if only the
+option with the credit card value is selected.
+
+- If the condition is true, it checks if the user
+has provided the credit card number, zip and cvv
+properly.
+*/
+
+$('#payment').on('change', function(){
+  if ($('#payment option:selected').attr('value') === 'credit card') {
+    $('#cc-num').blur(function(){
+      ccNum();
+    });
+  
+    $('#zip').blur(function(){
+      zip();
+    });
+  
+    $('#cvv').blur(function(){
+      cvv();
+    });
+  } else {
+    hideError('ccError');
+  }
+});
+
+/*======= Validation When Submitting =======*/
+
+$('form').on('submit',function(e){
+  
 });
