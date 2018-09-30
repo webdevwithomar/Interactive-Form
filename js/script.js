@@ -136,10 +136,10 @@ checkboxes.on('change', function () {
       activitiesSection('input[name="js-libs"]');
     }
     if ($(this).attr('name') === 'build-tools') {
-      activitiesSection('input[name="npm"]');
+      amountOfMoney += 100;
     }
     if ($(this).attr('name') === 'npm') {
-      activitiesSection('input[name="build-tools"]');
+      amountOfMoney += 100;
     }
   }
 
@@ -171,22 +171,22 @@ checkboxes.on('change', function () {
       amountOfMoney -= 200;
     }
     if ($(this).attr('name') === 'js-frameworks') {
-      activitiesSection2 ('input[name="express"]')
+      activitiesSection2 ('input[name="express"]');
     }
     if ($(this).attr('name') === 'express') {
-      activitiesSection2 ('input[name="js-frameworks"]')
+      activitiesSection2 ('input[name="js-frameworks"]');
     }
     if ($(this).attr('name') === 'js-libs') {
-      activitiesSection2 ('input[name="node"]')
+      activitiesSection2 ('input[name="node"]');
     }
     if ($(this).attr('name') === 'node') {
-      activitiesSection2 ('input[name="js-libs"]')
+      activitiesSection2 ('input[name="js-libs"]');
     }
     if ($(this).attr('name') === 'build-tools') {
-      activitiesSection2 ('input[name="npm"]')
+      amountOfMoney -= 100;
     }
     if ($(this).attr('name') === 'npm') {
-      activitiesSection2 ('input[name="build-tools"]')
+      amountOfMoney -= 100;
     }
   }
 
@@ -262,9 +262,18 @@ $('#payment').on('change', function () {
 /*****************************
 Form Validation
 ******************************/
-// 5 Functions below are to generate and hide errorMessages and generate the border colors if error occurs
+// 8 Functions below are to generate and hide errorMessages and generate the border colors if error occurs
 
 function errorMessage(element, text, errorName) {
+  const message = $('<p>'+text+'</p>');
+  $('form').append(message);
+  $(message).css('color', 'firebrick');
+  $(message).attr('id', errorName);
+  $(message).insertBefore(element);
+  $('#'+errorName).hide();
+}
+
+function errorMessage1(element, text, errorName) {
   const message = $('<p>'+text+'</p>');
   $('form').append(message);
   $(message).css('color', 'firebrick');
@@ -277,7 +286,15 @@ function showError(id) {
   $('#'+id).show();
 }
 
+function showError1(id) {
+  $('#'+id).show();
+}
+
 function hideError(id) {
+  $('#'+id).hide();
+}
+
+function hideError1(id) {
   $('#'+id).hide();
 }
 
@@ -304,14 +321,22 @@ function IsEmail(email) {
 // Calling a function to generate an error message for name
 errorMessage($('#name'), 'Must be at least 3 characters', 'nameError')
 
+// Calling a function to generate another error message for name
+errorMessage1($('#name'), 'Name field cannot be empty', 'nameError1')
+
 // The event listener below shows or hides the error message based on the length of character in the text input field
 $('#name').keyup(function(){
   const $text = $('#name').val();
-  if ($text.length < 3 || $text === '') {
+  if ($text.length < 3 && $text.length > 0) {
     showError('nameError');
+    hideError1('nameError1');
     errorBorder('name');
+  } else if ($text === '') {
+    showError1('nameError1');
+    hideError('nameError');
   } else {
     hideError('nameError');
+    hideError1('nameError1');
     errorFix('name');
   }
 });
@@ -319,15 +344,30 @@ $('#name').keyup(function(){
 // Calling a function to generate an error message for email
 errorMessage($('#mail'), 'Invalid Email Address', 'mailError')
 
+// Calling a function to generate another error message for email
+errorMessage1($('#mail'), 'Email field cannot be empty', 'mailError1')
+
 // The event listener below shows or hides the error message based on the length of character in the text input field
 $('#mail').keyup(function(){
   const $text = $('#mail').val();
-  if ($text === '' || IsEmail($text) === false) {
+  if (IsEmail($text) === false) {
     showError('mailError');
+    hideError1('mailError1');
     errorBorder('mail');
+  } else if ($text === '') {
+    showError1('mailError1');
+    hideError('mailError');
   } else {
     hideError('mailError');
+    hideError1('mailError1');
     errorFix('mail');
+  }
+});
+
+// The event listener below hides the error when the user checks an activity 
+$('input[type="checkbox"]').change(function(){
+  if ($('input[type="checkbox"]:checked').length >= 1) {
+    hideError('activityError');
   }
 });
 
@@ -370,15 +410,15 @@ function cvv () {
 
 if ($('#payment option:selected').attr('value') === 'credit card') {
   
-  $('#cc-num').blur(function(){
+  $('#cc-num').keyup(function(){
     ccNum();
   });
 
-  $('#zip').blur(function(){
+  $('#zip').keyup(function(){
     zip();
   });
 
-  $('#cvv').blur(function(){
+  $('#cvv').keyup(function(){
     cvv();
   });
 } else {
@@ -422,22 +462,34 @@ errorMessage($('.activities input[name="all"]'), 'At least one activity should b
 $('form').on('submit',function(e){
   
   // The Name Field
-  if ($('#name').val().length < 3 || $('#name').val() === '') {
+  if ($('#name').val().length < 3 && $('#name').val().length > 0) {
     showError('nameError');
     errorBorder('name');
+    hideError1('nameError1');
+    e.preventDefault();
+  } else if ($('#name').val() === '') {
+    showError1('nameError1');
+    hideError('nameError');
     e.preventDefault();
   } else {
     hideError('nameError');
+    hideError1('nameError1');
     errorFix('name');
   }
 
   // The Email Field
-  if ($('#mail').val() === '' || IsEmail($('#mail').val()) === false) {
+  if ($('#mail').val() === '' && $('#mail').val().length < 1) {
+    showError1('mailError1');
+    hideError('mailError');
+    e.preventDefault();
+  } else if (IsEmail($('#mail').val()) === false) {
     showError('mailError');
     errorBorder('mail');
+    hideError1('mailError1');
     e.preventDefault();
   } else {
     hideError('mailError');
+    hideError1('mailError1');
     errorFix('mail');
   }
 
